@@ -1,20 +1,30 @@
+
+<h1>Website Theme Color Poll</h1>
+
+<p>Which color would you choose for a website theme?</p>
+
 <form action="/chart" method="post">
-  <label for="color">Color:</label>
+  <label for="color">Choose a color:</label>
+
   <select id="color" name="color" required>
     <option value="red">Red</option>
     <option value="blue">Blue</option>
     <option value="yellow">Yellow</option>
+    <option value="green">Green</option>
+    <option value="purple">Purple</option>
   </select>
- 
-  <button type="submit">Submit</button>
+
+  <button type="submit">Vote</button>
 </form>
+
+<h2>Poll Results</h2>
+
 <div>
-  
   {{#each poll}}
-    <p>{{this.color}}: {{this.amount}}</p>
-  {{/each}} 
-  
-  </div>
+    <p>{{this.color}}: {{this.amount}} vote(s)</p>
+  {{/each}}
+</div>
+
 <div>
   <canvas id="barChart"></canvas>
 </div>
@@ -22,25 +32,24 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
- 
   var pollData = {{{ pollJSON }}};
-  console.log(pollData);
+
   let colors = [];
   let amounts = [];
+
   for (let i = 0; i < pollData.length; i++) {
     colors.push(pollData[i].color);
     amounts.push(pollData[i].amount);
   }
-  console.log(colors);
-  console.log(amounts);
 
-const ctx = document.getElementById('barChart');
+  const ctx = document.getElementById('barChart');
+
   new Chart(ctx, {
     type: 'bar',
     data: {
       labels: colors,
       datasets: [{
-        label: '# of Votes',
+        label: 'Number of Votes',
         data: amounts,
         borderWidth: 1
       }]
@@ -48,12 +57,12 @@ const ctx = document.getElementById('barChart');
     options: {
       scales: {
         y: {
-          beginAtZero: true
+          beginAtZero: true,
+          ticks: {
+            stepSize: 1
+          }
         }
       }
     }
   });
-
- 
 </script>
-  

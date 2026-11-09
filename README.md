@@ -1,3 +1,36 @@
+
+# Website Theme Color Poll — CIM 343
+
+This is my poll assignment for CIM 343, built using
+Express.js, Handlebars, SQLite, and Chart.js.
+
+## My Poll
+
+Question: Which color would you choose for a website theme?
+
+The poll includes five options:
+- Red
+- Blue
+- Yellow
+- Green
+- Purple
+
+I added Green and Purple to the original class example.
+
+### Poll Code
+
+The poll is located in `views/charts.hbs`.
+
+[View my poll code](views/charts.hbs)
+
+### How to Run the Poll
+
+1. Run `npm install`
+2. Run `npm start`
+3. Open `http://localhost:3000/chart`
+
+The poll saves votes and displays results in a bar chart.
+
 # CIM343/643 Express App
 
 An Express.js web application built with Handlebars templating, Sequelize ORM, and SQLite — featuring task management, list management, a color poll with Chart.js, and a p5.js visualization.

@@ -120,13 +120,13 @@ The changes were pretty small, but they made the final version easier to use.
 
 ## Hand Edits I Made
 
-I added the generated code to my existing `app.js` file instead of creating a separate Express application.
+I added the AI-generated tracker code to my existing `app.js` file instead of creating a separate Express application. I kept my previous poll assignment routes and added the Version 1 and Version 2 routes.
 
-I placed the Version 1 and Version 2 routes before the existing 404 handler so Express could recognize them. I also kept the routes from my previous poll assignment.
+While testing Version 2, I noticed that clicking Clear all data gave me a 404 error instead of deleting my entries. I checked my code and realized that the POST route for clearing the cookie was placed below the 404 handler. I manually moved it above the 404 handler, restarted my server, and tested it again so the button could work correctly.
 
-I created the prompt documentation files, saved screenshots from my testing, and updated the README.
+I also created the prompt documentation files, saved screenshots from my testing, and updated the README with my explanations and video walkthrough.
 
-I kept the Version 1 routes unchanged after testing so the original and improved versions could be compared.
+I kept the Version 1 routes unchanged after testing so I could compare the original version with the improved one.
 
 ## How My Code Works
 

@@ -296,6 +296,409 @@ app.get('/delete-all', async (req, res) => {
     }
 });
 
+// ----- Tracker v1 routes -----
+
+// Reads saved drinks from the Version 1 cookie.
+function readDrinkDiaryV1(req) {
+  try {
+    const saved = req.cookies.drinkDiary_v1;
+    const parsed = typeof saved === 'string'
+      ? JSON.parse(saved || '[]')
+      : saved;
+
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+// Shows the form for adding drinks.
+app.get('/tracker/v1', function (req, res) {
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>Drink Diary</title>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          background-color: #f8f8f5;
+          color: #333;
+          margin: 0;
+        }
+
+        main {
+          max-width: 600px;
+          margin: 40px auto;
+          padding: 25px;
+        }
+
+        h1 { color: #426b50; }
+
+        label {
+          display: block;
+          margin-top: 18px;
+          margin-bottom: 6px;
+        }
+
+        input, select {
+          box-sizing: border-box;
+          width: 100%;
+          padding: 10px;
+          border: 1px solid #bbb;
+          border-radius: 3px;
+          font: inherit;
+          background: white;
+        }
+
+        button {
+          background: #426b50;
+          color: white;
+          border: none;
+          padding: 11px 20px;
+          margin-top: 22px;
+          cursor: pointer;
+          font: inherit;
+        }
+
+        a { color: #426b50; }
+      </style>
+    </head>
+    <body>
+      <main>
+        <h1>Drink Diary</h1>
+        <p>A simple way to keep track of what you drink each day.</p>
+
+        <form action="/tracker/v1" method="POST">
+          <label for="date">Date</label>
+          <input type="date" id="date" name="date" required>
+
+          <label for="drink">Drink Type</label>
+          <select id="drink" name="drink" required>
+            <option value="Water">Water</option>
+            <option value="Coffee">Coffee</option>
+            <option value="Tea">Tea</option>
+            <option value="Juice">Juice</option>
+          </select>
+
+          <label for="ounces">Amount (oz)</label>
+          <input type="number" id="ounces" name="ounces" min="1" required>
+
+          <button type="submit">Add Drink</button>
+        </form>
+
+        <p><a href="/tracker/v1/dashboard">View Dashboard</a></p>
+      </main>
+    </body>
+    </html>
+  `);
+});
+
+// Saves a new drink to the cookie.
+app.post('/tracker/v1', function (req, res) {
+  const date = req.body.date;
+  const drink = req.body.drink;
+  const ounces = Number(req.body.ounces);
+
+  // Check that the form has valid information.
+  if (!date || !drink || !Number.isFinite(ounces) || ounces <= 0) {
+    return res.status(400).send('Please enter valid drink information.');
+  }
+
+  // Get the drinks that were already saved.
+  const drinks = readDrinkDiaryV1(req);
+
+  // Add the new drink.
+  drinks.push({
+    date: date,
+    drink: drink,
+    ounces: ounces
+  });
+
+  // Keep only the most recent 30 entries.
+  const recentDrinks = drinks.slice(-30);
+
+  // Save the updated list in a cookie for 7 days.
+  res.cookie('drinkDiary_v1', JSON.stringify(recentDrinks), {
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    httpOnly: true,
+    sameSite: 'lax'
+  });
+
+  // Go to the dashboard after saving.
+  res.redirect('/tracker/v1/dashboard');
+});
+
+// Shows the Drink Diary dashboard.
+app.get('/tracker/v1/dashboard', function (req, res) {
+  const drinks = readDrinkDiaryV1(req);
+
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>Drink Diary Dashboard</title>
+
+      <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          background: #f8f8f5;
+          color: #333;
+          margin: 0;
+        }
+
+        main {
+          max-width: 750px;
+          margin: 35px auto;
+          padding: 20px;
+        }
+
+        h1, h2 {
+          color: #426b50;
+        }
+
+        h2 {
+          font-size: 20px;
+        }
+
+        section {
+          background: white;
+          border: 1px solid #ddd;
+          padding: 20px;
+          margin: 20px 0;
+        }
+
+        .chart-area {
+          position: relative;
+          height: 270px;
+        }
+
+        a {
+          color: #426b50;
+        }
+
+        button {
+          background: #426b50;
+          color: white;
+          border: none;
+          padding: 10px 16px;
+          cursor: pointer;
+          font: inherit;
+        }
+
+        #cupSketch {
+          width: 100%;
+          overflow-x: auto;
+        }
+      </style>
+    </head>
+
+    <body>
+      <main>
+        <h1>My Drink Dashboard</h1>
+        <p>Here's a look at the drinks I've recorded.</p>
+
+        <p><a href="/tracker/v1">Add Another Drink</a></p>
+
+        <section>
+          <h2>Drinks by Day</h2>
+          <div class="chart-area">
+            <canvas id="dailyChart"></canvas>
+          </div>
+        </section>
+
+        <section>
+          <h2>Types of Drinks</h2>
+          <div class="chart-area">
+            <canvas id="typeChart"></canvas>
+          </div>
+        </section>
+
+        <section>
+          <h2>My Drink Cups</h2>
+          <p>Each cup represents a drink I've added.</p>
+          <div id="cupSketch"></div>
+        </section>
+
+        <form action="/tracker/v1/dashboard" method="POST">
+          <button type="submit">Clear all data</button>
+        </form>
+      </main>
+
+      <script>
+        // Get the drink entries sent by Express.
+        const entries = ${JSON.stringify(drinks).replace(/</g, '\\u003c')};
+
+        // Calculate the total ounces recorded each day.
+        const dates = [...new Set(entries.map(entry => entry.date))].sort();
+
+        const dailyTotals = dates.map(date => {
+          return entries
+            .filter(entry => entry.date === date)
+            .reduce((sum, entry) => sum + entry.ounces, 0);
+        });
+
+        // Create a bar chart showing daily drink totals.
+        new Chart(document.getElementById('dailyChart'), {
+          type: 'bar',
+          data: {
+            labels: dates,
+            datasets: [{
+              label: 'Ounces',
+              data: dailyTotals,
+              backgroundColor: '#7a9b80'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              title: {
+                display: true,
+                text: 'Total Ounces per Day'
+              }
+            },
+            scales: {
+              x: {
+                title: { display: true, text: 'Date' }
+              },
+              y: {
+                beginAtZero: true,
+                title: { display: true, text: 'Ounces' }
+              }
+            }
+          }
+        });
+
+        // Calculate total ounces for each drink type.
+        const drinkTypes = ['Water', 'Coffee', 'Tea', 'Juice'];
+
+        const drinkTotals = drinkTypes.map(type => {
+          return entries
+            .filter(entry => entry.drink === type)
+            .reduce((sum, entry) => sum + entry.ounces, 0);
+        });
+
+        // Create a doughnut chart showing drink categories.
+        new Chart(document.getElementById('typeChart'), {
+          type: 'doughnut',
+          data: {
+            labels: drinkTypes,
+            datasets: [{
+              data: drinkTotals,
+              backgroundColor: [
+                '#8ab6d6',
+                '#a78970',
+                '#83a78a',
+                '#e8b174'
+              ]
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              title: {
+                display: true,
+                text: 'Ounces by Drink Type'
+              },
+              legend: {
+                position: 'bottom'
+              }
+            }
+          }
+        });
+
+        // Draw one cup for each drink using p5.js.
+        new p5(function(p) {
+          let columns;
+
+          p.setup = function() {
+            const drawingWidth = Math.min(
+              650,
+              document.getElementById('cupSketch').clientWidth
+            );
+
+            columns = Math.max(1, Math.floor(drawingWidth / 110));
+            const rows = Math.ceil(entries.length / columns);
+
+            p.createCanvas(
+              drawingWidth,
+              Math.max(125, rows * 130)
+            ).parent('cupSketch');
+
+            p.noLoop();
+          };
+
+          p.draw = function() {
+            p.background('#ffffff');
+            p.textAlign(p.CENTER);
+            p.textSize(12);
+
+            if (entries.length === 0) {
+              p.fill('#555555');
+              p.noStroke();
+              p.text('No drinks logged yet.', p.width / 2, 60);
+              return;
+            }
+
+            const colors = {
+              Water: '#8ab6d6',
+              Coffee: '#a78970',
+              Tea: '#83a78a',
+              Juice: '#e8b174'
+            };
+
+            entries.forEach(function(entry, index) {
+              const x = 20 + (index % columns) * 110;
+              const y = 10 + Math.floor(index / columns) * 130;
+
+              const fillHeight = Math.min(entry.ounces / 24, 1) * 60;
+
+              // Fill the cup based on the recorded ounces.
+              p.noStroke();
+              p.fill(colors[entry.drink] || '#aaaaaa');
+              p.rect(x + 3, y + 78 - fillHeight, 54, fillHeight);
+
+              // Draw the outside of the cup.
+              p.noFill();
+              p.stroke('#555555');
+              p.strokeWeight(2);
+              p.rect(x, y + 10, 60, 70);
+
+              // Show the drink type and ounces.
+              p.noStroke();
+              p.fill('#333333');
+              p.text(entry.drink, x + 30, y + 100);
+              p.text(entry.ounces + ' oz', x + 30, y + 116);
+            });
+          };
+        });
+      </script>
+    </body>
+    </html>
+  `);
+});
+
+ // Clears all saved drinks from the Version 1 cookie.
+app.post('/tracker/v1/dashboard', function (req, res) {
+  // Delete the cookie containing the drink entries.
+  res.clearCookie('drinkDiary_v1');
+
+  // Return to the dashboard after clearing the data.
+  res.redirect('/tracker/v1/dashboard');
+});
+
+
+
+
 app.use(function (req, res, next) {
   next(createError(404));
 });

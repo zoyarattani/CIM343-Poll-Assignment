@@ -4,7 +4,7 @@
 **Course:** CIM 343 – Front End Fundamentals  
 **Semester:** Fall 2026
 
-**Video walkthrough:** [Add video link after recording]
+**Video walkthrough:** https://drive.google.com/file/d/1eSZfHUzX677c7-Qjcdbtynd52u0hUMVn/view?usp=sharing
 
 ## What I tracked and why
 

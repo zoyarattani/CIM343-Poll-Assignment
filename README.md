@@ -128,7 +128,7 @@ I created the prompt documentation files, saved screenshots from my testing, and
 
 I kept the Version 1 routes unchanged after testing so the original and improved versions could be compared.
 
-## How My Code Works (In My Own Words)
+## How My Code Works
 
 The main code for both versions is located in [app.js](app.js).
 

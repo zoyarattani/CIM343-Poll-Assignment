@@ -8,133 +8,112 @@
 
 ## What I tracked and why
 
-For this assignment, I made a website called Drink Diary that lets users record what they drink throughout the day. Each entry includes the date, type of drink, and amount in ounces.
+For this assignment, I created Drink Diary, a website where users can keep track of what they drink throughout the day. Each entry includes the date, drink type, and amount in ounces. The available categories are water, coffee, tea, and juice.
 
-I chose this idea because it's something simple that people can use in their everyday lives. I also thought it would be interesting to see how much of each drink someone has throughout the week.
+I picked a drink tracker because it's a simple idea that I could easily test with different entries. I also liked being able to compare the drink types and see how the amounts added up over several days.
 
-The website uses Express.js and cookie-parser to save entries. It also has two Chart.js charts and a p5.js drawing to display the data in different ways.
+I used Express.js and cookie-parser to save entries, Chart.js for two charts, and p5.js for a drawing of cups based on the recorded drinks.
 
 ## Version 1 (Prompt v1)
 
 [View Prompt v1](tracker-docs/prompt-v1.md)
 
-### Version 1 Dashboard
+### Version 1 dashboard
 
 ![Version 1 Dashboard](tracker-docs/images/v1-dashboard.png)
 
 ### What worked and what didn't
 
-Most of Version 1 worked when I tested it. I was able to add drinks, and the dashboard updated to show the correct amounts. When I added another drink, both charts updated, and another cup appeared in the drawing.
+I started by testing whether I could add a drink and see it on the dashboard. I logged 16 ounces of water, then added 12 ounces of coffee. Both charts updated, and a second cup appeared in the p5.js drawing.
 
-I also refreshed the dashboard to see if the data would disappear, but everything was still there. The Clear all data button worked too.
+I also refreshed the dashboard, and the drinks were still there. When I clicked **Clear all data**, the entries disappeared as expected.
 
-One problem I found was that the form accepted 9999 ounces. Even though that isn't a realistic amount for one drink, the website still saved it. The form already prevented negative numbers and empty fields, but it didn't have a maximum amount.
-
-I wanted to fix this in Version 2 and make a few other improvements.
+The issue I found was with the amount field. The browser stopped me from leaving it empty or entering a negative number, but it accepted 9999 ounces. I hadn't specified an upper limit in my first prompt, so that became one of the main things I wanted to change for Version 2.
 
 ## Version 2 – Final
 
-[View Prompt v2 and Test Log](tracker-docs/prompt-v2.md)
+[View Prompt v2 and the Version 1 test log](tracker-docs/prompt-v2.md)
 
-For Version 2, I kept the same basic idea but improved the form validation and made the dashboard a little more organized.
+For Version 2, I kept the same drink-tracking idea and simple design. I focused on making the form more specific about what it accepts and making the dashboard a little easier to read.
 
-### Final Form
+### Final form
 
 ![Version 2 Form](tracker-docs/images/v2-form.png)
 
-The final form includes a date field, a dropdown for selecting the drink type, and an amount field.
+The updated form has the same three fields, but the amount now needs to be a whole number between 1 and 64 ounces. I also made users choose a drink type instead of leaving one selected by default, and added a note under the amount field explaining the allowed range.
 
-I added a limit so users can only enter whole numbers between 1 and 64 ounces. I also included a short instruction underneath the amount field so users know what values are allowed.
-
-### Final Dashboard
+### Final dashboard
 
 ![Version 2 Dashboard](tracker-docs/images/v2-dashboard.png)
 
-The dashboard shows the number of drinks recorded and the total ounces. It also includes a bar chart, a doughnut chart, and the p5.js cup drawing.
+The final dashboard includes a summary of the number of drinks and total ounces, two charts, and the cup drawing. During testing, I added five entries, and the summary showed **5 drinks and 66 total ounces**.
 
-When I tested Version 2 with five entries, the summary displayed 5 drinks and 66 total ounces.
+I kept the styling pretty basic: a light background, green headings and buttons, plain borders, and no extra animations. I wanted it to look like a straightforward class project rather than a complicated dashboard.
 
-I kept the design simple, with a white background, muted green headings, basic borders, and straightforward navigation.
+### Cookie storage
 
-### Cookie Storage
+![Version 2 Cookie in DevTools](tracker-docs/images/v2-cookie-devtools.png)
 
-![Cookie in DevTools](tracker-docs/images/v2-cookie-devtools.png)
+I opened Chrome DevTools and checked **Application → Cookies** to see the entries saved in `drinkDiary_v2`.
 
-The website uses cookies to save drink entries instead of storing them in a database.
+Version 1 uses `drinkDiary_v1` and Version 2 uses `drinkDiary_v2`, so testing one version doesn't overwrite the other one's entries. Each cookie is set to last seven days, and the code keeps only the most recent 30 entries to avoid storing too much information.
 
-Version 1 uses the cookie name `drinkDiary_v1`, while Version 2 uses `drinkDiary_v2`. This keeps the data from the two versions separate.
+### Biggest changes from Version 1
 
-I checked Chrome DevTools under Application > Cookies and found the Version 2 cookie containing my saved entries.
+The most useful change was the amount validation. Version 1 accepted 9999 ounces, while Version 2 blocks anything outside the 1–64 ounce range. I added checks in the Express route as well as restrictions on the HTML number input.
 
-The cookies last for seven days, and the code keeps up to 30 entries so the cookie doesn't become too large.
+I also added a confirmation before clearing the data and a summary at the top of the dashboard. Those were small changes, but they made the app clearer to use.
 
-### Biggest Changes from Version 1
+## Testing and improvements
 
-The biggest improvement was adding better form validation. In Version 1, users could enter amounts like 9999 ounces, but Version 2 only allows whole numbers between 1 and 64 ounces.
+I tested Version 1 before writing my second prompt. These results helped me decide what to keep and what to change.
 
-I also added a confirmation message before clearing the data. This way, users can cancel if they click the button by mistake.
-
-Another change was adding a drink summary at the top of the dashboard. It shows how many drinks were recorded and the total ounces.
-
-I kept the overall design simple because I wanted the website to be easy to use without adding too many unnecessary features.
-
-## Testing and Improvements
-
-I tested Version 1 before writing my second prompt. I wanted to see which parts were working and what could be improved.
-
-| What I tested | What happened | What I wanted instead |
+| What I tested in Version 1 | What happened | What I wanted for Version 2 |
 |---|---|---|
-| Added 16 oz of water | The entry saved and appeared on the dashboard | Keep this working |
-| Added 12 oz of coffee | Both charts and the cup drawing updated | Keep the charts connected to the saved data |
-| Refreshed the dashboard | My saved entries were still there | Keep the data saved after refreshing |
-| Left the amount empty | The browser asked me to fill out the field | Keep required field validation |
-| Entered -5 ounces | The browser prevented submission | Keep blocking negative amounts |
-| Entered 9999 ounces | Version 1 accepted it | Limit the amount to 1–64 ounces |
-| Clicked Clear all data | Version 1 deleted the entries immediately | Add a confirmation before deleting |
+| Added 16 oz of water | The drink appeared on the dashboard | Keep saving and displaying entries |
+| Added 12 oz of coffee | Both charts updated and another cup appeared | Keep all three visualizations tied to saved data |
+| Refreshed the dashboard | The entries stayed there | Keep cookie persistence |
+| Left the amount empty | The browser asked me to fill out the field | Keep required-field validation |
+| Entered -5 ounces | The browser blocked the value | Keep the minimum amount |
+| Entered 9999 ounces | The form accepted it | Set a reasonable maximum of 64 ounces |
+| Clicked Clear all data | The saved entries disappeared immediately | Ask for confirmation before clearing |
 
 ### Testing Version 2
 
-After making Version 2, I tested the new features.
-
 | What I tested | What happened |
 |---|---|
-| Added five drink entries | The dashboard displayed 5 drinks and 66 total ounces |
-| Checked both charts | The charts displayed the recorded dates and drink categories |
-| Checked the p5.js sketch | Five cups appeared with the recorded amounts |
-| Opened Chrome DevTools | I found the `drinkDiary_v2` cookie with my saved data |
-| Entered 9999 ounces | The browser blocked the entry and showed the allowed range |
-| Clicked Clear all data | A confirmation message appeared |
-| Selected Cancel | My saved drinks stayed on the dashboard |
+| Added five drinks | The summary showed 5 drinks and 66 oz |
+| Checked the charts | The bar chart showed dates and totals, and the doughnut chart showed the drink categories |
+| Checked the p5.js drawing | Five labeled cups appeared with different fill levels and colors |
+| Opened DevTools | I could see `drinkDiary_v2` and its saved value |
+| Tried entering 9999 ounces | The browser showed that the amount had to be between 1 and 64 |
+| Clicked Clear all data | A confirmation popup appeared |
+| Clicked Cancel | The entries remained on the dashboard |
+| Tried confirming Clear all data | I initially got a 404 page because the POST route was in the wrong place in `app.js` |
 
 ### What I learned from testing
 
-Testing helped me notice issues that I wouldn't have caught just by looking at the website.
+When I first tried the app with normal entries, it seemed fine. The charts changed, the cups appeared, and the data stayed saved. Trying unusual values was what helped me find a problem with the form.
 
-At first, Version 1 seemed to work because I could add drinks and see the charts update. But when I tried entering 9999 ounces, I realized that the form needed a better limit.
+I made my second prompt more specific about valid inputs rather than just asking for an amount field. I also realized that the clear button needed a confirmation, since someone could easily click it by mistake.
 
-I made my second prompt more specific about the allowed values and how the form should handle invalid input.
+Testing the completed version mattered too. The confirmation popup worked, but I found a separate routing issue when I actually tried to clear the data. That wasn't obvious from just looking at the dashboard.
 
-I also realized that the Clear all data button could be frustrating if someone clicked it by mistake, so I added a confirmation message.
+## Hand edits I made
 
-The changes were pretty small, but they made the final version easier to use.
+I added the AI-generated tracker code to my existing `app.js` instead of starting a separate Express project. I kept the routes from my previous poll assignment and left the Version 1 tracker routes in place so they could be compared with Version 2.
 
-## Hand Edits I Made
+The main hand edit was fixing the Version 2 **Clear all data** route. When I tried to clear the entries, Express sent me to a 404 page. I looked through `app.js` and found that the POST route for clearing the cookie was below the 404 handler. I moved that route above the handler so Express could reach it, then restarted the server.
 
-I added the AI-generated tracker code to my existing `app.js` file instead of creating a separate Express application. I kept my previous poll assignment routes and added the Version 1 and Version 2 routes.
+I also made the `tracker-docs` folder, saved the screenshots, and updated this README with the testing notes, code explanations, and video link.
 
-While testing Version 2, I noticed that clicking Clear all data gave me a 404 error instead of deleting my entries. I checked my code and realized that the POST route for clearing the cookie was placed below the 404 handler. I manually moved it above the 404 handler, restarted my server, and tested it again so the button could work correctly.
+## How my code works
 
-I also created the prompt documentation files, saved screenshots from my testing, and updated the README with my explanations and video walkthrough.
+The code for both tracker versions is in [app.js](app.js). These are the main parts I looked at to understand how the tracker saves and displays its data.
 
-I kept the Version 1 routes unchanged after testing so I could compare the original version with the improved one.
+### Saving the cookie
 
-## How My Code Works
-
-The main code for both versions is located in [app.js](app.js).
-
-### Saving the Cookie
-
-This is the part of my Version 2 code that saves a drink after the submitted information passes validation.
+This section comes from the Version 2 POST route after it checks the submitted values:
 
 ```javascript
 const drinks = readDrinkDiaryV2(req);
@@ -156,66 +135,41 @@ res.cookie('drinkDiary_v2', JSON.stringify(recentDrinks), {
 res.redirect('/tracker/v2/dashboard');
 ```
 
-**How it works:**
+First, `readDrinkDiaryV2(req)` gets the drinks that were previously saved. Inside that helper, `req.cookies` is used to read the cookie, and `JSON.parse()` turns the stored text back into an array.
 
-First, `readDrinkDiaryV2(req)` gets the drinks that were already saved in the cookie. This function uses `req.cookies` to access the saved information and turns it back into an array.
+`drinks.push()` adds the new entry to that array. I used `.slice(-30)` to keep the last 30 entries because cookies have limited storage space. Then `JSON.stringify()` converts the list back into text, and `res.cookie()` saves it under the Version 2 cookie name for seven days.
 
-Next, `drinks.push()` adds the new drink to the list. Each entry includes the date, drink type, and amount in ounces.
+After saving, `res.redirect()` takes the user to the dashboard so the new entry can be displayed.
 
-I used `.slice(-30)` to keep only the 30 most recent entries. Since cookies have limited storage, I didn't want the list to keep getting bigger.
+### Getting the data to the dashboard
 
-Then `res.cookie()` saves the updated list. I used `JSON.stringify()` because the array needs to be converted into text before it can be stored in the cookie.
-
-The `maxAge` setting makes the cookie last seven days. I also used `httpOnly` so browser JavaScript can't directly read the cookie.
-
-Finally, `res.redirect()` takes the user to the dashboard so they can see the updated information.
-
-### Getting the Data to the Dashboard
-
-This is the beginning of my Version 2 dashboard route.
+This is an excerpt from the beginning of the Version 2 dashboard route:
 
 ```javascript
 app.get('/tracker/v2/dashboard', function (req, res) {
   const drinks = readDrinkDiaryV2(req);
 
   const totalDrinks = drinks.length;
-
   const totalOunces = drinks.reduce(function (sum, entry) {
     return sum + Number(entry.ounces || 0);
   }, 0);
 
-  const safeDrinks = JSON.stringify(drinks)
-    .replace(/</g, '\\u003c');
+  const safeDrinks = JSON.stringify(drinks).replace(/</g, '\\u003c');
 
   // The route continues by sending the dashboard HTML.
-});
 ```
 
-The full route is in [app.js](app.js).
+When someone opens the dashboard, Express reads the `drinkDiary_v2` cookie again. `drinks.length` gives the number of entries, and `.reduce()` adds up all the ounces for the summary at the top.
 
-The dashboard HTML also includes this line to make the saved data available to the charts and drawing:
+The route also turns the entries into JSON so the JavaScript in the page can use them. In the HTML sent by Express, the data is inserted with:
 
 ```javascript
 const entries = ${safeDrinks};
 ```
 
-**How it works:**
-
-When someone opens the dashboard, Express runs the route for `/tracker/v2/dashboard`.
-
-The first thing it does is call `readDrinkDiaryV2(req)` to get the saved entries from the cookie. If there isn't any data saved, the function returns an empty array.
-
-The code uses `drinks.length` to count how many drinks were recorded.
-
-I used `.reduce()` to calculate the total ounces. It goes through each entry and adds the amounts together until it gets the final total.
-
-The `safeDrinks` variable prepares the saved data so it can be included in the JavaScript on the dashboard page. Replacing the less-than character helps prevent the data from being interpreted as HTML.
-
-The browser then uses the entries to build the two charts and the p5.js drawing.
+That's what connects the stored drinks to the charts and cup drawing. The full route, including the HTML, is in `app.js`.
 
 ### Chart 1 – Drinks by Day
-
-The first chart is a bar chart showing the total ounces recorded each day.
 
 ```javascript
 const dates = [...new Set(entries.map(function (entry) {
@@ -233,25 +187,11 @@ const dailyTotals = dates.map(function (date) {
 });
 ```
 
-**How it works:**
+The bar chart shows total ounces by date. The code first collects the dates from the saved entries. `Set` removes duplicates, which matters if more than one drink was logged on the same day, and `.sort()` puts the dates in order.
 
-I used `.map()` to get the date from each saved entry.
-
-The `Set` removes repeated dates because someone might record more than one drink on the same day. Then `.sort()` puts the dates in order.
-
-For each date, `.filter()` finds the entries that match that day. After that, `.reduce()` adds the ounces together.
-
-For example, if someone records 16 ounces of water and 20 ounces of water on the same day, the chart shows 36 ounces for that date instead of making two separate bars.
-
-The dates are shown on the x-axis, and the total ounces are shown on the y-axis.
-
-I used a muted green color for the bars to match the rest of the website.
-
-The numbers are calculated from the cookie data, so the chart changes whenever a drink is added.
+For each date, `.filter()` finds the entries from that day, and `.reduce()` adds their ounces. So if I log 16 ounces and 20 ounces on the same day, the chart shows one bar at 36 ounces. The dates are on the x-axis and ounces are on the y-axis.
 
 ### Chart 2 – Types of Drinks
-
-The second chart is a doughnut chart showing the total ounces recorded for each drink category.
 
 ```javascript
 const drinkTypes = ['Water', 'Coffee', 'Tea', 'Juice'];
@@ -267,31 +207,19 @@ const drinkTotals = drinkTypes.map(function (type) {
 });
 ```
 
-**How it works:**
+The doughnut chart compares how many ounces were recorded for each type of drink. It uses `.filter()` to find entries for one category at a time, then `.reduce()` to add the amounts together.
 
-I made an array with the four drink categories: water, coffee, tea, and juice.
+Each category has its own color: blue for water, brown for coffee, green for tea, and orange for juice. The values come from the cookie data, so adding another drink changes the chart instead of showing a fixed example.
 
-The code goes through each category and uses `.filter()` to find entries with that drink type. Then `.reduce()` adds the ounces together.
+### p5.js sketch – My Drink Cups
 
-For example, if someone records water several times, the chart combines those amounts into one total for water.
-
-Each drink type has a different color. Water is blue, coffee is brown, tea is green, and juice is orange.
-
-I also included a legend underneath the chart so users can see what each color represents.
-
-The chart doesn't use hard-coded numbers. It calculates everything from the saved entries, so the sections change when new drinks are recorded.
-
-### p5.js Sketch – My Drink Cups
-
-For the p5.js part, I created a drawing that shows a cup for each drink entry.
-
-This calculation controls how much liquid appears inside each cup.
+This is the calculation used to decide how high the liquid should be drawn inside each cup:
 
 ```javascript
 const fillHeight = Math.min(entry.ounces / 64, 1) * 65;
 ```
 
-The sketch also uses these colors:
+The drawing also uses different colors for the categories:
 
 ```javascript
 const colors = {
@@ -302,29 +230,11 @@ const colors = {
 };
 ```
 
-**How it works:**
+The sketch draws one cup for each entry. The drink category decides the liquid color, while the ounces control the fill height. Since Version 2 allows up to 64 ounces, a 16-ounce entry fills about one-quarter of the cup, and a 32-ounce entry fills about half.
 
-The sketch goes through the saved entries and draws one cup for each drink.
+It also puts the drink name and amount underneath each cup. When more drinks are added, more cups appear in rows. If the cookie is empty, the drawing says **No drinks logged yet.**
 
-The amount of liquid depends on how many ounces were entered. I used 64 ounces as the maximum because that's the largest amount allowed in Version 2.
-
-The calculation divides the ounces by 64 to figure out how full the cup should be. It then multiplies that number by 65 to turn it into the height of the liquid in the drawing.
-
-For example, a 16-ounce drink fills about a quarter of the cup, while a 32-ounce drink fills about half.
-
-I used different colors for each drink type so the drawing would be easier to understand.
-
-The sketch also displays the drink name and the amount in ounces underneath each cup.
-
-When another drink is added, another cup appears. If there are several entries, the cups are arranged in rows.
-
-If there aren't any saved drinks, the sketch displays a message saying "No drinks logged yet."
-
-I liked this part because it shows the same information as the charts but in a more visual way.
-
-### Clearing the Cookie
-
-This is the code that deletes the Version 2 data.
+### Clearing the cookie
 
 ```javascript
 app.post('/tracker/v2/dashboard', function (req, res) {
@@ -333,130 +243,56 @@ app.post('/tracker/v2/dashboard', function (req, res) {
 });
 ```
 
-**How it works:**
+When the user confirms the **Clear all data** action, the form sends a POST request to this route. `res.clearCookie()` removes the Version 2 cookie, and the redirect loads the dashboard again without those entries.
 
-When someone clicks Clear all data and confirms the action, the dashboard sends a POST request to this route.
+The button also has a browser confirmation. Choosing **Cancel** stops the POST request, which is why the saved drinks stay there. This route only clears `drinkDiary_v2`, not the Version 1 cookie.
 
-The `res.clearCookie()` function deletes the Version 2 cookie that contains the saved drink entries.
+## Something the AI got wrong
 
-After that, `res.redirect()` takes the user back to the dashboard. Since the data has been deleted, the dashboard will show zero drinks and an empty drawing.
+The first issue I found was the missing upper limit on the amount field. I tested the form with 9999 ounces and it accepted the entry. My first prompt said to include an amount field, but I hadn't explained what a reasonable amount should be. In Prompt v2, I specifically requested whole numbers from 1 to 64 and validation in Express as well as the form.
 
-I made sure this only clears `drinkDiary_v2`, so it doesn't affect the data stored for Version 1.
+I also ran into the 404 error when clearing Version 2 data. In that case, the issue wasn't the button's appearance or the cookie itself. The clear route had been inserted after the 404 handler, so the request never reached it. I moved the route to the right place in `app.js`.
 
-I also added a confirmation popup before deleting anything. If the user clicks Cancel, the form doesn't submit, and their data stays saved.
+Both issues reminded me that I still needed to check the code and test the actual behavior, even when the AI generated most of the project.
 
-## Something the AI Got Wrong
+## Running the tracker
 
-One issue with the first version was that the AI didn't include a maximum value for the amount field.
-
-At first, I thought everything was working because I could add drinks and see the charts update. But when I tested the form with 9999 ounces, it accepted the number.
-
-That showed me that even when a website works with normal inputs, it might still have problems with unexpected values.
-
-For Version 2, I changed my prompt to be more specific. Instead of just asking for a number field, I explained that the amount needed to be a whole number between 1 and 64 ounces.
-
-I also asked for server-side validation so Express would check the values before saving them.
-
-When I tested the same 9999-ounce value in Version 2, the browser blocked it.
-
-Another thing I learned was that I needed to be specific about the website's design. I wanted something simple and easy to understand, so I included instructions about the colors, fonts, spacing, and layout.
-
-This assignment helped me understand why it's important to write detailed prompts, test the results, and make changes based on what actually happens.
-
-## Running the Tracker
-
-To run the Express application locally, open the terminal and enter:
+Run these commands in the project terminal:
 
 ```bash
 npm install
 npm start
 ```
 
-The application runs on port 3000 by default.
+The Express app runs on port 3000 by default.
 
-### Version 1 Routes
+| Page | URL |
+|---|---|
+| Version 1 form | http://localhost:3000/tracker/v1 |
+| Version 1 dashboard | http://localhost:3000/tracker/v1/dashboard |
+| Version 2 form | http://localhost:3000/tracker/v2 |
+| Version 2 dashboard | http://localhost:3000/tracker/v2/dashboard |
 
-**Tracker Form:**  
-http://localhost:3000/tracker/v1
-
-**Dashboard:**  
-http://localhost:3000/tracker/v1/dashboard
-
-### Version 2 Routes
-
-**Tracker Form:**  
-http://localhost:3000/tracker/v2
-
-**Dashboard:**  
-http://localhost:3000/tracker/v2/dashboard
-
-### Technologies Used
-
-- HTML
-- CSS
-- JavaScript
-- Express.js
-- cookie-parser
-- Chart.js
-- p5.js
-
-Both tracker versions are part of the existing Express application. The routes are located in `app.js`, and each version stores its entries in a separate cookie.
+**Technologies used:** HTML, CSS, JavaScript, Express.js, cookie-parser, Chart.js, and p5.js.
 
 ---
 
 # Previous Express and Poll Assignment
 
-This repository also contains my previous CIM 343 poll assignment.
+This repository also contains my earlier CIM 343 Express assignment, including the website theme color poll and some task and list management routes.
 
 ## Website Theme Color Poll
 
-The question for my poll was:
+The poll asks: **Which color would you choose for a website theme?**
 
-**Which color would you choose for a website theme?**
+The five options are red, blue, yellow, green, and purple. I added green and purple to the original class example.
 
-The poll includes five options:
-
-- Red
-- Blue
-- Yellow
-- Green
-- Purple
-
-I added Green and Purple to the original class example.
-
-The poll uses Express.js, Handlebars, SQLite, Sequelize, and Chart.js.
-
-Users can vote for their preferred color, and the results are displayed in a bar chart.
-
-### Poll Code
-
-The poll page is located in `views/charts.hbs`.
+The poll uses Express.js, Handlebars, Sequelize, SQLite, and Chart.js. Votes are saved in the database and displayed in a bar chart.
 
 [View my poll code](views/charts.hbs)
 
-### How to Run the Poll
+To open the poll, run `npm install` and `npm start`, then visit http://localhost:3000/chart.
 
-Start the application:
+## Other Express App Features
 
-```bash
-npm install
-npm start
-```
-
-Then open:
-
-http://localhost:3000/chart
-
-## Other Express Application Features
-
-My Express project also includes:
-
-- Task management
-- List management
-- A website theme color poll
-- A p5.js visualization
-- The Drink Diary cookie tracker
-
-The main Express routes are located in [app.js](app.js).
-
-The Handlebars templates are stored in the `views` folder, and the static files are stored in the `public` folder.
+The project also includes task management, list management, a p5.js visualization, and the Drink Diary tracker. The main routes are in [app.js](app.js), the Handlebars templates are in `views`, and the static files are in `public`.
